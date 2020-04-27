@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+def libs = [
+        jda: 'net.dv8tion:JDA:4.1.1_139',
+        slf4j: 'org.slf4j:slf4j-simple:1.7.30',
+        gson: 'com.google.code.gson:gson:2.8.6',
+        guava: 'com.google.guava:guava:29.0-jre',
+        lombok: 'org.projectlombok:lombok:1.18.12'
+]
+
+dependencies {
+    implementation libs.slf4j
+    implementation libs.guava
+    implementation libs.gson
+    implementation libs.jda
+    implementation libs.lombok
+    annotationProcessor libs.lombok
+}
