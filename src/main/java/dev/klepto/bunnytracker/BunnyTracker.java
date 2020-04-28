@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import java.awt.Color;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -108,7 +109,9 @@ public class BunnyTracker {
 
     private String formatPlayers(BTMap map, BTPlayer highlightPlayer) {
         val builder = new StringBuilder();
-        map.getPlayers().values().forEach(player -> {
+        map.getPlayers().values().stream()
+                .sorted(Comparator.comparingInt(BTPlayer::getRank))
+                .forEach(player -> {
             if (player.equals(highlightPlayer)) {
                 builder.append("**");
             }
