@@ -2,6 +2,8 @@ package dev.klepto.bunnytracker;
 
 import lombok.Value;
 
+import java.util.Map;
+
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
  */
@@ -9,7 +11,7 @@ import lombok.Value;
 public class BTMap {
 
     String name;
-    BTPlayer[] players;
+    Map<String, BTPlayer> players;
 
     public String getIconUrl() {
         switch (getName()) {

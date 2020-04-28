@@ -12,9 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import java.awt.Color;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Set;
-
-import static java.util.function.Predicate.not;
+import java.util.Map;
 
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
@@ -32,12 +30,12 @@ public class BunnyTracker {
     private final String discordChannel;
     private final RecordsService service;
     private JDA discordClient;
-    private Set<BTMap> previous = Collections.emptySet();
+    private Map<String, BTMap> previous = Collections.emptyMap();
 
     public BunnyTracker(String discordToken, String discordChannel) {
         this.discordToken = discordToken;
         this.discordChannel = discordChannel;
-        this.service = new RecordsService(Duration.ofMinutes(1), this::compareMap);
+        this.service = new RecordsService(Duration.ofMinutes(5), this::compareMaps);
     }
 
     public void start() throws Exception {
@@ -46,39 +44,45 @@ public class BunnyTracker {
         service.start();
     }
 
-    public void compareMap(Set<BTMap> maps) {
-        if (discordClient == null) {
-            return;
-        }
-
+    public void compareMaps(Map<String, BTMap> maps) {
         if (!previous.isEmpty()) {
-            maps.stream()
-                    .filter(not(previous::contains))
-                    .forEach(this::compareMap);
+            maps.values().forEach(this::compareMap);
         }
 
         previous = maps;
     }
 
-    private void compareMap(BTMap current) {
-        previous.stream()
-                .filter(previous -> previous.getName().equals(current.getName()))
-                .findFirst()
-                .ifPresent(previous -> comparePlayers(previous, current));
+    private void compareMap(BTMap map) {
+        if (discordClient == null) {
+            return;
+        }
+
+        val previousMap = previous.get(map.getName());
+        if (previousMap == null) {
+            return;
+        }
+
+        if (previousMap.equals(map)) {
+            return;
+        }
+
+        comparePlayers(previousMap, map);
     }
 
     private void comparePlayers(BTMap previous, BTMap current) {
-        for (int i = 0; i < current.getPlayers().length; i++) {
-            val newRecord = i >= previous.getPlayers().length
-                    || !current.getPlayers()[i].equals(previous.getPlayers()[i]);
-            if (newRecord) {
-                announce(current, current.getPlayers()[i]);
+        current.getPlayers().values().forEach(player -> {
+            val previousPlayer = previous.getPlayers().get(player.getName());
+            var newPosition = previousPlayer == null || previousPlayer.getRank() > player.getRank();
+            if (previousPlayer != null && player.getTime() >= previousPlayer.getTime()) {
+                return;
             }
-        }
+
+            announce(current, player, newPosition);
+        });
     }
 
-    private void announce(BTMap map, BTPlayer player) {
-        val embed = createEmbed(map, player);
+    private void announce(BTMap map, BTPlayer player, boolean newPosition) {
+        val embed = createEmbed(map, player, newPosition);
 
         discordClient.getGuilds().stream()
                 .flatMap(guild -> guild.getChannels().stream())
@@ -88,11 +92,14 @@ public class BunnyTracker {
                 .forEach(channel -> channel.sendMessage(embed).queue());
     }
 
-    private MessageEmbed createEmbed(BTMap map, BTPlayer player) {
+    private MessageEmbed createEmbed(BTMap map, BTPlayer player, boolean newPosition) {
         val builder = new EmbedBuilder();
         val mapUrl = "https://ut4bt.ga/map/" + map.getName();
+        val message = newPosition
+                ? "New #" + player.getRank() + " by " + player.getName() + "!"
+                : "New personal best by " + player.getName() + "!";
         builder.setTitle(map.getName(), mapUrl);
-        builder.setAuthor("New personal best by " + player.getName() + "!", mapUrl);
+        builder.setAuthor(message, mapUrl);
         builder.setDescription(formatPlayers(map, player));
         builder.setColor(Color.GREEN);
         builder.setThumbnail(map.getIconUrl());
@@ -101,12 +108,11 @@ public class BunnyTracker {
 
     private String formatPlayers(BTMap map, BTPlayer highlightPlayer) {
         val builder = new StringBuilder();
-        for (int i = 0; i < map.getPlayers().length; i++) {
-            val player = map.getPlayers()[i];
+        map.getPlayers().values().forEach(player -> {
             if (player.equals(highlightPlayer)) {
                 builder.append("**");
             }
-            builder.append(i + 1);
+            builder.append(player.getRank());
             builder.append(". ");
             builder.append(player.getName());
             builder.append(" - ");
@@ -134,7 +140,7 @@ public class BunnyTracker {
                 builder.append("**");
             }
             builder.append("\n");
-        }
+        });
         return builder.toString();
     }
 

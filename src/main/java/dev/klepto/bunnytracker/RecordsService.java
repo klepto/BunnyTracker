@@ -2,22 +2,27 @@ package dev.klepto.bunnytracker;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +39,7 @@ public class RecordsService {
             .timeout(Duration.ofMinutes(1)).build();
 
     private final Duration interval;
-    private final Consumer<Set<BTMap>> listener;
+    private final Consumer<Map<String, BTMap>> listener;
     private ScheduledExecutorService executor;
 
 
@@ -50,15 +55,34 @@ public class RecordsService {
 
     private void fetchRecords() {
         try {
-            String response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body();
-            Type parseType = new TypeToken<Map<String, BTPlayer[]>>(){}.getType();
-            Map<String, BTPlayer[]> recordMap = gson.fromJson(response, parseType);
-            Set<BTMap> records = recordMap.entrySet().stream()
-                    .map(entry -> new BTMap(entry.getKey(), entry.getValue())).collect(Collectors.toSet());
-            listener.accept(records);
+            //val response = new String(Files.readAllBytes(Paths.get("home.json")));
+            val response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body();
+            val parseType = new TypeToken<Map<String, Player[]>>(){}.getType();
+
+            Map<String, Player[]> records = gson.fromJson(response, parseType);
+            Map<String, BTMap> maps = records.keySet().stream().map(mapName -> {
+               val players = records.get(mapName);
+               val btPlayers = new HashMap<String, BTPlayer>();
+               for (int i = 0; i < players.length; i++) {
+                   val player = players[i];
+                   btPlayers.put(player.getName(), new BTPlayer(i + 1, player.getName(), player.getTime()));
+               }
+               return new BTMap(mapName, btPlayers);
+            }).collect(Collectors.toMap(BTMap::getName, Function.identity()));
+
+            listener.accept(maps);
         } catch (Exception cause) {
             log.error("Error occurred during records request!", cause);
         }
+    }
+
+    @Value
+    private static class Player {
+        @SerializedName("PlayerName")
+        String name;
+
+        @SerializedName("BestTime")
+        int time;
     }
 
 

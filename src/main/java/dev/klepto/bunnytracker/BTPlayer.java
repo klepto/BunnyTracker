@@ -1,6 +1,5 @@
 package dev.klepto.bunnytracker;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Value;
 
 /**
@@ -9,10 +8,8 @@ import lombok.Value;
 @Value
 public class BTPlayer {
 
-    @SerializedName("PlayerName")
+    int rank;
     String name;
-
-    @SerializedName("BestTime")
     int time;
 
 }
