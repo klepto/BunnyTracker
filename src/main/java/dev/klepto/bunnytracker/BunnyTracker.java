@@ -24,7 +24,7 @@ public class BunnyTracker {
         Preconditions.checkArgument(args.length > 0, "Please specify Discord API token as program argument.");
 
         val discordToken = args[0];
-        new BunnyTracker(discordToken, "general").start();
+        new BunnyTracker(discordToken, "bunnytracker").start();
     }
 
     private final String discordToken;
