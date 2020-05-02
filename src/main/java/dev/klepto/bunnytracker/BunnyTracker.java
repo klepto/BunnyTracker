@@ -1,11 +1,12 @@
 package dev.klepto.bunnytracker;
 
-import com.google.common.base.Preconditions;
 import dev.klepto.bunnytracker.discord.DiscordBot;
 import dev.klepto.bunnytracker.record.RecordsService;
 import lombok.val;
 
 import java.time.Duration;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
@@ -13,10 +14,11 @@ import java.time.Duration;
 public class BunnyTracker {
 
     public static void main(String[] args) throws Exception {
-        Preconditions.checkArgument(args.length > 0, "Please specify Discord API token as program argument.");
+        checkArgument(args.length > 0, "Please specify Discord API token as program argument.");
 
-        val discordBot = new DiscordBot(args[0]);
-        val recordsService = new RecordsService(Duration.ofMinutes(5), discordBot::announceRecords).start();
+        val bot = new DiscordBot(args[0]);
+        val service = new RecordsService(Duration.ofMinutes(5), bot::announceRecords);
+        service.start();
     }
 
 }
