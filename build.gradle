@@ -13,7 +13,8 @@ def libs = [
         slf4j: 'org.slf4j:slf4j-simple:1.7.30',
         gson: 'com.google.code.gson:gson:2.8.6',
         guava: 'com.google.guava:guava:29.0-jre',
-        lombok: 'org.projectlombok:lombok:1.18.12'
+        lombok: 'org.projectlombok:lombok:1.18.12',
+        commands: 'dev.klepto.commands:commands:1.0.1'
 ]
 
 application {
@@ -25,6 +26,7 @@ dependencies {
     implementation libs.guava
     implementation libs.gson
     implementation libs.jda
+    implementation libs.commands
     implementation libs.lombok
     annotationProcessor libs.lombok
 }

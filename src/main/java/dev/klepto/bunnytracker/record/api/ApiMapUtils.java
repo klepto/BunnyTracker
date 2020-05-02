@@ -1,20 +1,33 @@
-package dev.klepto.bunnytracker;
+package dev.klepto.bunnytracker.record.api;
 
-import lombok.Value;
+import dev.klepto.bunnytracker.record.Record;
+import lombok.val;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
  */
-@Value
-public class BTMap {
+public class ApiMapUtils {
 
-    String name;
-    Map<String, BTPlayer> players;
+    private static final Map<String, Record.Map> mapCache = new HashMap<>();
 
-    public String getIconUrl() {
-        switch (getName()) {
+    public static Record.Map getMap(String mapName) {
+        if (!mapCache.containsKey(mapName)) {
+            val map = new Record.Map(mapName, getRecordsUrl(mapName), getImageUrl(mapName));
+            mapCache.put(mapName, map);
+        }
+
+        return mapCache.get(mapName);
+    }
+
+    public static String getRecordsUrl(String mapName) {
+        return "https://ut4bt.ga/map/" + mapName;
+    }
+
+    public static String getImageUrl(String mapName) {
+        switch (mapName) {
             case "BT-Welcome_v5":
                 return "https://ut4bt.ga/img/maps/welcome.jpg";
             case "BT-AirRace_V5":
@@ -31,6 +44,7 @@ public class BTMap {
                 return "https://ut4bt.ga/img/maps/radioactive.jpg";
             case "BT-HOP":
                 return "https://ut4bt.ga/img/maps/hop.jpg";
+            case "BT-RansomKek":
             case "BT-RansomKek_Beta":
                 return "https://ut4bt.ga/img/maps/ransomkek_beta.jpg";
             case "BT-RadicalTrials1_v5":
