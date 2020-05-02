@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'jacoco'
 }
 
 repositories {
@@ -14,7 +15,9 @@ def libs = [
         gson: 'com.google.code.gson:gson:2.8.6',
         guava: 'com.google.guava:guava:29.0-jre',
         lombok: 'org.projectlombok:lombok:1.18.12',
-        commands: 'dev.klepto.commands:commands:1.0.1'
+        commands: 'dev.klepto.commands:commands:1.0.1',
+        truth : 'com.google.truth:truth:1.0.1',
+        junit: 'junit:junit:4.12'
 ]
 
 application {
@@ -29,4 +32,18 @@ dependencies {
     implementation libs.commands
     implementation libs.lombok
     annotationProcessor libs.lombok
+
+    testImplementation libs.truth
+    testImplementation libs.junit
+    testImplementation libs.lombok
+    testAnnotationProcessor libs.lombok
+}
+
+task showJacocoReport(type: Exec) {
+    def os = org.gradle.internal.os.OperatingSystem.current()
+    if (os.isWindows()) {
+        workingDir jacocoTestReport.reports.html.destination
+        commandLine 'cmd', '/c', 'start', 'index.html'
+    }
+    dependsOn test, jacocoTestReport
 }
