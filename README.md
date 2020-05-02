@@ -14,7 +14,7 @@ To select record updates channel, simply mention the bot in your desired text ch
 
 Bot will then continiously fetch [ut4bt.ga](https://ut4bt.ga/) API and give you record updates in a following format:
 
-![Record Update](https://i.imgur.com/HvWlkXk.png)
+![Record Update](https://i.imgur.com/r9m5pnp.png)
 
 # Contributing
 
