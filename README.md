@@ -3,7 +3,7 @@
 
 Dicord bot for tracking new UT4 BunnyTrack records.
 
-## Usage
+# Usage
 
 BunnyTracker can be invited to any discord server by using following [link](https://discordapp.com/oauth2/authorize?client_id=704443023882321950&scope=bot&permissions=2048).
 
@@ -16,7 +16,7 @@ Bot will then continiously fetch [ut4bt.ga](https://ut4bt.ga/) API and give you 
 
 ![Record Update](https://i.imgur.com/HvWlkXk.png)
 
-## Contributing
+# Contributing
 
 Bug reports and pull requests are welcome on [GitHub](https://github.com/klepto/BunnyTracker/).
 
