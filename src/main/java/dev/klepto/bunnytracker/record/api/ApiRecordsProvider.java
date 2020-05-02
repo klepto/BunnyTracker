@@ -37,7 +37,10 @@ public class ApiRecordsProvider implements RecordsProvider {
         try {
             val json = jsonProvider.fetchRecordsJson();
             val apiRecords = GSON.<Map<String, ApiRecord[]>>fromJson(json, COLLECTION_TYPE);
-            return parseNewRecords(apiRecords);
+            val records = parseNewRecords(apiRecords);
+
+            this.currentRecords = apiRecords;
+            return records;
         } catch (Exception cause) {
             log.error("Error occurred during records request!", cause);
         }
