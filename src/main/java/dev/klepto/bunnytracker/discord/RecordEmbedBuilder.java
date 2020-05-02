@@ -25,7 +25,7 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
                 : "New personal best by " + player.getName() + "!";
 
         builder.setTitle(map.getName(), map.getRecordsUrl());
-        builder.setAuthor(message, map.getRecordsUrl());
+        builder.setAuthor(message, "http://github.com/klepto/BunnyTracker");
         builder.setDescription(formatPlayers(record));
         builder.setColor(Color.GREEN);
         builder.setThumbnail(map.getImageUrl());
@@ -36,7 +36,7 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
         val builder = new StringBuilder();
 
         for (val player : record.getPlayers()) {
-            if (player.equals(record.getPlayer())) {
+            if (player.isNewRecord()) {
                 builder.append("**");
             }
             builder.append(player.getRank());
@@ -44,9 +44,20 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
             builder.append(player.getName());
             builder.append(" - ");
             builder.append(formatTime(player.getTime()));
-            if (player.equals(record.getPlayer())) {
+            builder.append(" ");
+
+            if (player.isNewRecord()) {
                 builder.append("**");
             }
+
+            if (player.getPreviousRank() != -1 && player.getRank() != player.getPreviousRank()) {
+                val difference = player.getPreviousRank() - player.getRank();
+                builder.append("(");
+                if (difference > 0) builder.append("+");
+                builder.append(difference);
+                builder.append(") ");
+            }
+
             builder.append("\n");
         }
         return builder.toString();
@@ -72,6 +83,7 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
         } else if (millis < 100) {
             builder.append("0");
         }
+
         builder.append(millis);
         return builder.toString();
     }
