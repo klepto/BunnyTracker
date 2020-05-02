@@ -24,7 +24,7 @@ public class DiscordCommands {
         config.setChannelId(message.getTextChannel().getIdLong());
         bot.getConfigRepository().save();
 
-        val reply = message.getAuthor().getAsMention() + "Default records channel changed to: "
+        val reply = message.getAuthor().getAsMention() + " Default records channel changed to: "
                 + message.getTextChannel().getAsMention();
         message.getTextChannel().sendMessage(reply).queue();
     }
