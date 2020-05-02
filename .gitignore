@@ -2,4 +2,5 @@
 .idea/
 build/
 out/
-*.json
+guilds.json
+home.json
