@@ -66,7 +66,7 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
     private String formatTime(int time) {
         val builder = new StringBuilder();
         val duration = Duration.ofMillis(time);
-        val minutes = duration.toMinutesPart();
+        val minutes = duration.toMinutes();
         val seconds = duration.toSecondsPart();
         val millis = duration.toMillisPart();
         if (minutes > 0) {
