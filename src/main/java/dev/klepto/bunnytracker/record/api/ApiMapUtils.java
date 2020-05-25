@@ -5,6 +5,8 @@ import lombok.val;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
@@ -27,7 +29,9 @@ public class ApiMapUtils {
     }
 
     public static String getImageUrl(String mapName) {
-        val imageName = mapName.replaceAll("/[-_]v?[0-9]+[a-z]?$/i", "").substring(3).toLowerCase();
+        val pattern = Pattern.compile("(?i)[-_]v\\d+(\\w)?$");
+        val matcher = pattern.matcher(mapName);
+        val imageName = mapName.substring(3, matcher.start()).toLowerCase();
         return "https://ut4bt.ga/img/maps/" + imageName + ".jpg";
     }
 
