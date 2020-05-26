@@ -9,11 +9,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
@@ -24,6 +31,7 @@ public class ApiRecordsProvider implements RecordsProvider {
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final Type COLLECTION_TYPE = new TypeToken<Map<String, ApiRecord[]>>(){}.getType();
+    private static final Path RECORD_CACHE_PATH = Paths.get("records.json");
 
     private final RecordsJsonProvider jsonProvider;
     private Map<String, ApiRecord[]> currentRecords = Collections.emptyMap();
@@ -35,11 +43,18 @@ public class ApiRecordsProvider implements RecordsProvider {
     @Override
     public Set<Record> getNewRecords() {
         try {
-            val json = jsonProvider.fetchRecordsJson();
+            var json = jsonProvider.fetchRecordsJson();
+            if (currentRecords.isEmpty()) {
+                val cachedJson = readRecordCache();
+                if (cachedJson != null) {
+                    json = cachedJson;
+                }
+            }
             val apiRecords = GSON.<Map<String, ApiRecord[]>>fromJson(json, COLLECTION_TYPE);
             val records = parseNewRecords(apiRecords);
 
             this.currentRecords = apiRecords;
+            saveRecordCache(json);
             return records;
         } catch (Exception cause) {
             log.error("Error occurred during records request!", cause);
@@ -82,6 +97,18 @@ public class ApiRecordsProvider implements RecordsProvider {
                 .filter(Record.Player::isNewRecord)
                 .map(player -> new Record(ApiMapUtils.getMap(mapName), player, players))
                 .collect(Collectors.toSet());
+    }
+
+    public String readRecordCache() throws IOException {
+        if (!Files.exists(RECORD_CACHE_PATH)) {
+            return null;
+        }
+
+        return Files.readString(RECORD_CACHE_PATH);
+    }
+
+    public void saveRecordCache(String json) throws IOException {
+        Files.write(RECORD_CACHE_PATH, json.getBytes(), CREATE, TRUNCATE_EXISTING);
     }
 
 }
