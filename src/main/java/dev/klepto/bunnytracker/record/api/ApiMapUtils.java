@@ -31,7 +31,7 @@ public class ApiMapUtils {
     public static String getImageUrl(String mapName) {
         val pattern = Pattern.compile("(?i)[-_]v\\d+(\\w)?$");
         val matcher = pattern.matcher(mapName);
-        val imageName = mapName.substring(3, matcher.start()).toLowerCase();
+        val imageName = mapName.substring(3, matcher.find() ? matcher.start() : mapName.length()).toLowerCase();
         return "https://ut4bt.ga/img/maps/" + imageName + ".jpg";
     }
 
