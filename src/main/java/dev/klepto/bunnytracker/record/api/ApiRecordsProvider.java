@@ -30,7 +30,8 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 public class ApiRecordsProvider implements RecordsProvider {
 
     private static final Gson GSON = new GsonBuilder().create();
-    private static final Type COLLECTION_TYPE = new TypeToken<Map<String, ApiRecord[]>>(){}.getType();
+    private static final Type COLLECTION_TYPE = new TypeToken<Map<String, ApiRecord[]>>() {
+    }.getType();
     private static final Path RECORD_CACHE_PATH = Paths.get("records.json");
 
     private final RecordsJsonProvider jsonProvider;
@@ -64,10 +65,12 @@ public class ApiRecordsProvider implements RecordsProvider {
 
     private Set<Record> parseNewRecords(Map<String, ApiRecord[]> newRecords) {
         val records = new HashSet<Record>();
-        newRecords.forEach((key, value) -> {
-            val currentRecords = this.currentRecords.getOrDefault(key, new ApiRecord[0]);
-            records.addAll(parseMap(key, currentRecords, value));
-        });
+        if (!currentRecords.isEmpty()) {
+            newRecords.forEach((key, value) -> {
+                val currentRecords = this.currentRecords.getOrDefault(key, new ApiRecord[0]);
+                records.addAll(parseMap(key, currentRecords, value));
+            });
+        }
         return records;
     }
 
