@@ -64,8 +64,9 @@ public class ApiRecordsProvider implements RecordsProvider {
 
     private Set<Record> parseNewRecords(Map<String, ApiRecord[]> newRecords) {
         val records = new HashSet<Record>();
-        currentRecords.keySet().stream().filter(newRecords::containsKey).forEach(key -> {
-            records.addAll(parseMap(key, currentRecords.get(key), newRecords.get(key)));
+        newRecords.forEach((key, value) -> {
+            val currentRecords = this.currentRecords.getOrDefault(key, new ApiRecord[0]);
+            records.addAll(parseMap(key, currentRecords, value));
         });
         return records;
     }
