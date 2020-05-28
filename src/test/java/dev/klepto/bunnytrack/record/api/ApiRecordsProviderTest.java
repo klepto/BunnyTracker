@@ -21,6 +21,7 @@ public class ApiRecordsProviderTest {
     public void init() {
         jsonProvider = new ResourceJsonProvider("records.json");
         recordsProvider = new ApiRecordsProvider(jsonProvider);
+        recordsProvider.getNewRecords();
     }
 
     @Test
