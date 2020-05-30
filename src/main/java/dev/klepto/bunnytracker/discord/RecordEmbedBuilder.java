@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.time.Duration;
 import java.util.function.Function;
 
+import static java.lang.String.format;
+
 /**
  * @author <a href="https://klepto.dev/">Augustinas R.</a>
  */
@@ -65,7 +67,12 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
 
     private String formatTime(int time) {
         // Chatouille voids Pog
-        return String.format("%d:%02d.%03d", time / 60000, (time / 1000) % 60, time % 1000);
+        val minutes = time / 60000;
+        val seconds = (time / 1000) % 60;
+        val millis = time % 1000;
+        return minutes > 0
+                ? format("%d:%02d.%03d", minutes, seconds, millis)
+                : format("%02d.%03d", seconds, millis);
     }
 
 }
