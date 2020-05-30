@@ -64,28 +64,8 @@ public class RecordEmbedBuilder implements Function<Record, MessageEmbed> {
     }
 
     private String formatTime(int time) {
-        val builder = new StringBuilder();
-        val duration = Duration.ofMillis(time);
-        val minutes = duration.toMinutes();
-        val seconds = duration.toSecondsPart();
-        val millis = duration.toMillisPart();
-        if (minutes > 0) {
-            builder.append(duration.toMinutesPart());
-            builder.append(":");
-        }
-        if (seconds < 10) {
-            builder.append("0");
-        }
-        builder.append(seconds);
-        builder.append(".");
-        if (millis < 10) {
-            builder.append("00");
-        } else if (millis < 100) {
-            builder.append("0");
-        }
-
-        builder.append(millis);
-        return builder.toString();
+        // Chatouille voids Pog
+        return String.format("%d:%02d.%03d", time / 60000, (time / 1000) % 60, time % 1000);
     }
 
 }
