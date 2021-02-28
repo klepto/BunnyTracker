@@ -2,6 +2,7 @@ package dev.klepto.bunnytracker.record.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import dev.klepto.bunnytracker.record.Record;
 import dev.klepto.bunnytracker.record.RecordsProvider;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -29,7 +31,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 @RequiredArgsConstructor
 public class ApiRecordsProvider implements RecordsProvider {
 
-    private static final Gson GSON = new GsonBuilder().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type COLLECTION_TYPE = new TypeToken<Map<String, ApiRecord[]>>() {
     }.getType();
     private static final Path RECORD_CACHE_PATH = Paths.get("records.json");
@@ -53,9 +55,15 @@ public class ApiRecordsProvider implements RecordsProvider {
             }
             val apiRecords = GSON.<Map<String, ApiRecord[]>>fromJson(json, COLLECTION_TYPE);
             val records = parseNewRecords(apiRecords);
+            val firstRun = currentRecords.isEmpty();
 
             this.currentRecords = apiRecords;
             saveRecordCache(json);
+
+            if (firstRun) {
+                return getNewRecords();
+            }
+
             return records;
         } catch (Exception cause) {
             log.error("Error occurred during records request!", cause);
@@ -112,7 +120,10 @@ public class ApiRecordsProvider implements RecordsProvider {
     }
 
     public void saveRecordCache(String json) throws IOException {
-        Files.write(RECORD_CACHE_PATH, json.getBytes(), CREATE, TRUNCATE_EXISTING);
+        JsonElement element = GSON.fromJson(json, JsonElement.class);
+        try (BufferedWriter writer = Files.newBufferedWriter(RECORD_CACHE_PATH, CREATE, TRUNCATE_EXISTING)) {
+            GSON.toJson(element, writer);
+        }
     }
 
 }
