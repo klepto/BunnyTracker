@@ -40,7 +40,7 @@ public class ApiRecordsProvider implements RecordsProvider {
     private Map<String, ApiRecord[]> currentRecords = Collections.emptyMap();
 
     public ApiRecordsProvider() {
-        this(new ApiJsonProvider("https://ut4bt.ga/api/home"));
+        this(new ApiJsonProvider("https://ut4bt.tk/api/home"));
     }
 
     @Override
